@@ -27,12 +27,12 @@ A scalable SQL database designed to streamline daily commercial operations for s
 - [Roadmap](#roadmap)
 - [Architecture Diagram](#architecture-diagram)
 - [How to Run Locally](#how-to-run-locally)
-- [License](#license)
+- [Reflection and Growth](#reflection--growth)
 
 ---
 
 ## Project Overview
-**Duration:** _[Add timeframe]_  
+**Duration:** 1 week (June 2025)   
 **Tech Stack:** MySQL (InnoDB), Stored Procedures, Triggers, Views  
 **Role:** Database Designer & Developer
 
@@ -156,6 +156,16 @@ ORDER BY o.created_at DESC, o.id, oi.id;
 - _Problem:_ Orders, inventory, and alerts syncing  
 - _Solution:_ Triggers + logs ensure ACID behavior and auditability.
 
+**Handling Product Variants & Hierarchies**
+- _Problem:_ When I added `milk` as a product, I quickly realized it wasn’t that simple.  
+There are multiple types (cow’s milk, goat’s milk, buffalo milk), and even within cow’s milk there are sub-types depending on the breed. My first schema design flattened everything into one “Products” table, which made it confusing and harder to query when categories overlapped.
+
+- _Solution:_ I introduced a **category/subcategory hierarchy** in the `products` table using `category` and `subcategory` fields (e.g., `Dairy → Milk → Cow Milk → Jersey Cow`).  
+This way, products can be organized in multiple levels while still remaining in 3NF.  
+It also made queries more flexible — for example, I could fetch all “Milk” products regardless of animal type, or zoom in to “Jersey Cow” only.  
+This taught me that designing for real-world domains often requires planning for **hierarchical data**, not just flat lists.
+
+
 ---
 
 ## Results & Impact
@@ -245,5 +255,21 @@ ORDER BY o.created_at DESC, o.id, oi.id;
 
 ---
 
-## License
-This project is released under the **MIT License**. See [LICENSE](LICENSE).
+## Reflection & Growth
+
+This project actually started from a very simple real-life pain point:  
+my family buys milk, paneer, curd, etc. from a local dairy every morning, and
+we used to get long unstructured WhatsApp messages like *“500ml milk packets 15 available, paneer 8 pieces…”*.
+It was messy and sometimes we ended up with wrong quantities.
+
+When I thought about it, I realized: *this is exactly the kind of problem a structured database is meant to solve*.  
+That was my motivation to design a system — first just on paper, then in SQL.
+
+Along the way, I ran into some unexpected challenges:
+- At first, I struggled with modeling **subscriptions** (e.g., daily milk deliveries).  
+  My first design broke because it didn’t capture frequency properly. After a few tries, I landed on using a junction table with delivery frequency and next delivery date.  
+- Writing **triggers** was also new to me. The first version created duplicate alerts because I forgot to handle row-level logic correctly. Debugging that taught me how MySQL evaluates triggers.
+
+Overall, the most valuable learning was that **practical problems don’t look like textbook exercises**. Translating a messy, everyday workflow into a clean relational schema made me much more confident in my ability to bridge business context with database design.
+
+---
